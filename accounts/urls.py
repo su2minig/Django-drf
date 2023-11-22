@@ -1,11 +1,8 @@
 from django.urls import path, include
-from .views import UserCreateViewSet
+from . import views
 
-signup_viewset = UserCreateViewSet.as_view({
-    'get': 'list',
-    'post': 'create',
-})
 
 urlpatterns = [
-    path('signup/', signup_viewset, name='signup'),
+    path('signup/', views.signup, name='signup'),
+    path('login/', views.login, name='login')
 ]
