@@ -1,11 +1,11 @@
 # accounts/models.py
 from django.db import models
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.utils.translation import gettext_lazy as _
 from .managers import CustomUserManager
 
 
-class CustomUser(AbstractUser):
+class CustomUser(AbstractBaseUser, PermissionsMixin):
     username = None
     email = models.EmailField(_('email address'), unique=True)
 
@@ -14,8 +14,8 @@ class CustomUser(AbstractUser):
 
     objects = CustomUserManager()
 
-    date_of_birth = models.DateField(blank=True, null=True)
-    
+    is_active = models.BooleanField(default=True)
+    is_staff = models.BooleanField(default=False)
 
     def __str__(self):
         return self.email
