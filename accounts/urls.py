@@ -1,13 +1,11 @@
 from django.urls import path, include
-from . import views
-from rest_framework.routers import DefaultRouter
+from .views import UserCreateViewSet
 
-# router = DefaultRouter()
-# router.register('user', views.UserCreateView)
+signup_viewset = UserCreateViewSet.as_view({
+    'get': 'list',
+    'post': 'create',
+})
 
-# urlpatterns = [
-#     path('', include(router.urls)),
-# ]
 urlpatterns = [
-    path('signup/', views.signup, name='signup'),
+    path('signup/', signup_viewset, name='signup'),
 ]
