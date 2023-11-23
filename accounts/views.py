@@ -1,7 +1,11 @@
-from .serializers import RegisterSerializer, LoginSerializer
+from .serializers import RegisterSerializer, LoginSerializer, UserUpdateSerializer
 from .models import CustomUser
+from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from rest_framework import status, generics
+from django.contrib.auth import authenticate
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.views import APIView
 
 
 class SignupView(generics.CreateAPIView): #CreateAPIView는 post요청을 받아서 새로운 객체를 생성
@@ -22,3 +26,32 @@ class LoginView(generics.GenericAPIView):
         }, status=status.HTTP_200_OK)
     
 login = LoginView.as_view()
+
+class UserinfoView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        return Response({'message': f"반갑습니다, {user.email}님!"})
+    
+
+class UserViewSet(ModelViewSet):
+    '''
+    사용자 정보 RUD
+    '''
+    permission_classes = [IsAuthenticated]
+
+    def retrieve(self, request, *args, **kwargs):
+        '''
+        사용자 정보 조회
+        '''
+        instance = self.request.user
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
+    
+    def update(self, request, *args, **kwargs):
+        '''
+        사용자 정보 수정
+        '''
+        serializer = UserUpdateSerializer(data=request.data)
+        pass

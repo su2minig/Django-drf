@@ -69,12 +69,12 @@ class LoginSerializer(serializers.ModelSerializer):
     '''
     로그인 시리얼라이저
     '''
-    email = serializers.CharField(required=True)
-    password = serializers.CharField(write_only=True, required=True) # write_only=True: password 필드는 읽기 전용으로 설정
+    email = serializers.EmailField(required=True)
+    password = serializers.CharField(write_only=True, required=True)
 
     class Meta:
         model = CustomUser
-        fields = ['email', 'password'] # 로그인 시 아이디와 비밀번호만 필요
+        fields = ['email', 'password'] # 로그인 시 이메일 비밀번호만 필요
 
     def validate(self, data):
         print(data)
@@ -85,3 +85,17 @@ class LoginSerializer(serializers.ModelSerializer):
             token = Token.objects.get(user=user)
             return token
         raise serializers.ValidationError("유효하지 않은 로그인입니다.")
+    
+
+class UserUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ['email', 'password']
+        extra_kwargs = {'password': {'write_only': True}}
+
+    def update(self, instance, validated_data):
+        # 'update' 메서드를 오버라이드하여 비밀번호를 안전하게 설정하도록 처리할 수 있습니다.
+        instance.email = validated_data.get('email', instance.email)
+        instance.set_password(validated_data.get('password'))
+        instance.save()
+        return instance
