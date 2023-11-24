@@ -26,13 +26,6 @@ class LoginView(generics.GenericAPIView):
         }, status=status.HTTP_200_OK)
     
 login = LoginView.as_view()
-
-class UserinfoView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request):
-        user = request.user
-        return Response({'message': f"반갑습니다, {user.email}님!"})
     
 
 class UserViewSet(ModelViewSet):
