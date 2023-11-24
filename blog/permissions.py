@@ -1,4 +1,5 @@
 from rest_framework import permissions
+from rest_framework.authtoken.models import Token
 
 SAFE_METHODS = ('GET', 'HEAD', 'OPTIONS')
 
@@ -11,12 +12,20 @@ class IsAuthorOrReadOnly(permissions.BasePermission):
         '''
         GET, HEAD, OPTIONS 요청은 인증 여부와 상관없이 항상 True를 리턴
         '''
+        if request.method in permissions.SAFE_METHODS:
+            return True
+
         if request.method == "POST":
-            if request.user and request.user.is_authenticated:
-                return True
+            token = request.headers.get('Authorization', None)
+            if token:
+                token_key = token.split()[1]
+                # 유효한 토근인지 확인합니다. 아래 코드에서 token이 유효하지 않으면 애러 발생하면 except로 넘어갑니다.
+                token = Token.objects.get(key=token_key)
+                print("ddd",request.user)
+                if token.user:
+                    return True
             else:
                 return False
-        return True
         
     def has_object_permission(self, request, view, obj):
         '''

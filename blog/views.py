@@ -6,6 +6,7 @@ from .permissions import IsAuthorOrReadOnly
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.authtoken.models import Token
 
 # class PostViewSet(ModelViewSet):
 #     queryset = Post.objects.all()
@@ -17,6 +18,7 @@ from rest_framework.response import Response
 class PostListAPIView(APIView):
     # permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthorOrReadOnly]
     
     def get(self, request):
         post_list = Post.objects.all()
@@ -35,10 +37,14 @@ class PostListAPIView(APIView):
                 token_key = token.split()[1]
                 # 유효한 토근인지 확인합니다. 아래 코드에서 token이 유효하지 않으면 애러 발생하면 except로 넘어갑니다.
                 token = Token.objects.get(key=token_key)
+                print('토큰:', token)
                 print('사용자:', token.user.username)
+                request.data['author'] = token.user.pk
+                print(request.data)
             except:
                 print('토큰이 유효하지 않습니다.')
                 return Response({'error':'애러야!!'}, status=400)
+        print(request.data)
         serializer = PostSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
