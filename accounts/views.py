@@ -18,6 +18,9 @@ class LoginView(generics.GenericAPIView):
     serializer_class = LoginSerializer
 
     def post(self, request):
+        user = authenticate(
+            username=request.data.get("username"), password=request.data.get("password")
+        )
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True) # 유효성 검사
         token = serializer.validated_data
