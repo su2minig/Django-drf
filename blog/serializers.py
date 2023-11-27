@@ -1,5 +1,6 @@
-from rest_framework.serializers import ModelSerializer
+
 from .models import Post
+from rest_framework import serializers
 from django.contrib.auth import get_user_model
 
 
@@ -9,7 +10,8 @@ from django.contrib.auth import get_user_model
 #         fields = ['email']
 
 
-class PostSerializer(ModelSerializer):
+class PostSerializer(serializers.ModelSerializer):
+    author = serializers.ReadOnlyField(source='author.username')
     # author = AuthorSerializer()
     class Meta:
         model = Post
@@ -21,3 +23,4 @@ class PostSerializer(ModelSerializer):
             'created_at',
             'updated_at',
         ]
+        read_only_fields = ['author']

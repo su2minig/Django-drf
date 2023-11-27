@@ -26,36 +26,18 @@ class PostListAPIView(APIView):
         return Response(serializer.data)
     def post(self, request):
         # request에 headers에 있는 Authorization: Bearer ${token}로 넘어온 토큰 확인하여 post 처리
-        print(request.headers)
-        print(request.headers['Authorization'])
-        print(request.headers['Authorization'].split(' ')[1])
-        token = request.headers.get('Authorization', None)
-        print(token)
-        if token:
-            print('토큰 존재!')
-            try:
-                token_key = token.split()[1]
-                # 유효한 토근인지 확인합니다. 아래 코드에서 token이 유효하지 않으면 애러 발생하면 except로 넘어갑니다.
-                token = Token.objects.get(key=token_key)
-                print('토큰:', token)
-                print('사용자:', token.user.username)
-                request.data['author'] = token.user.pk
-                print(request.data)
-            except:
-                print('토큰이 유효하지 않습니다.')
-                return Response({'error':'애러야!!'}, status=400)
-        print(request.data)
         serializer = PostSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
+            serializer.save(author=request.user)
             return Response(serializer.data, status=201)
         return Response(serializer.errors, status=400)
     
 postlist = PostListAPIView.as_view()
 
+
 class PostDetailAPIView(APIView):
-    # authentication_classes = [TokenAuthentication]
-    # permission_classes = [IsAuthorOrReadOnly]
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthorOrReadOnly]
 
     def get(self, request, pk):
         post = Post.objects.get(pk=pk)
@@ -63,29 +45,19 @@ class PostDetailAPIView(APIView):
         return Response(serializer.data)
     
     def put(self, request, pk):
-        token = request.headers.get('Authorization', None)
-        print(request.headers)
-        if token:
-            print('토큰 존재!')
-            try:
-                token_key = token.split()[1]
-                # 유효한 토근인지 확인합니다. 아래 코드에서 token이 유효하지 않으면 애러 발생하면 except로 넘어갑니다.
-                token = Token.objects.get(key=token_key)
-                print('토큰:', token)
-                print('사용자:', token.user.username)
-                print(request.data)
-            except:
-                print('토큰이 유효하지 않습니다.')
-                return Response({'error':'애러야!!'}, status=400)
         post = Post.objects.get(pk=pk)
-        serializer = PostSerializer(post, data=request.data)
-        if token.user.pk == post.author:
+        serializer = PostSerializer(post, data=request.data, partial=True) # partial=True를 추가하여 부분 업데이트를 허용
+        print("요청유저",request.user)
+        print("요청유저pk",request.user.pk)
+        print("게시물저자pk",post.author.pk)
+        print("게시물저자",post.author)
+        print(serializer)
+        if request.user.pk == post.author.pk:
             if serializer.is_valid():
-                serializer.save()
+                serializer.save(author=request.user)
                 return Response(serializer.data)
             return Response(serializer.errors, status=400)
         else:
-            return Response({'error':'작성자만 수정 가능합니다.'}, status=400)
-    
+            return Response({'error':'작성자만 수정 가능합니다.'}, status=400)   
 
 postdetail = PostDetailAPIView.as_view()
