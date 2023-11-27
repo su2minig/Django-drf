@@ -34,4 +34,12 @@ class IsAuthorOrReadOnly(permissions.BasePermission):
         '''
         if request.method in permissions.SAFE_METHODS:
             return True
-        return obj.author == request.user
+        token = request.headers.get('Authorization', None)
+        if token:
+            token_key = token.split()[1]
+            # 유효한 토근인지 확인합니다. 아래 코드에서 token이 유효하지 않으면 애러 발생하면 except로 넘어갑니다.
+            token = Token.objects.get(key=token_key)
+            print(obj.author, token.user)
+            return obj.author == token.user.username
+        else:
+            return False

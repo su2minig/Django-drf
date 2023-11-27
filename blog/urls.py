@@ -8,4 +8,5 @@ from . import views
 urlpatterns = [
     # path('', include(router.urls)),
     path('', views.postlist, name='postlist'),
+    path('<int:pk>/', views.postdetail, name='postdetail'),
 ]
