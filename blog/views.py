@@ -7,13 +7,8 @@ from rest_framework.authentication import TokenAuthentication
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
+from rest_framework import status
 
-# class PostViewSet(ModelViewSet):
-#     queryset = Post.objects.all()
-#     serializer_class = PostSerializer
-#     # permission_classes = [IsAuthenticated, IsAuthorOrReadOnly] # 로그인된 사용자만 접근 가능
-#     # permission_classes = [IsAuthorOrReadOnly] 
-#     permission_classes = [IsAuthenticated]
 
 class PostListAPIView(APIView):
     # permission_classes = [IsAuthenticated]
@@ -52,12 +47,20 @@ class PostDetailAPIView(APIView):
         print("게시물저자pk",post.author.pk)
         print("게시물저자",post.author)
         print(serializer)
-        if request.user.pk == post.author.pk:
+        if request.user == post.author:
             if serializer.is_valid():
                 serializer.save(author=request.user)
                 return Response(serializer.data)
             return Response(serializer.errors, status=400)
         else:
-            return Response({'error':'작성자만 수정 가능합니다.'}, status=400)   
+            return Response({'error':'작성자만 수정 가능합니다.'}, status=400)
+        
+    def delete(self, request, pk):
+        post = Post.objects.get(pk=pk)
+        if request.user == post.author:
+            post.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        else:
+            return Response({'error':'작성자만 삭제 가능합니다.'}, status=400)
 
 postdetail = PostDetailAPIView.as_view()
