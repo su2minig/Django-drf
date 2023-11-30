@@ -28,8 +28,7 @@
 
 [WBS]
 
-
-
+![wbs](https://github.com/su2minig/Django-drf/assets/141402694/6bd857e7-a841-4291-93c0-d541bea97386)
 
 # 요구사항 및 기능명세
 
@@ -106,7 +105,7 @@
 
 ## 로그인/로그아웃
 
-![로그인 로그아웃](https://github.com/su2minig/Django-drf/assets/141402694/87efc680-209d-4f3c-979c-d4c4fc84ab48)
+![로그인 로그아웃](https://github.com/su2minig/Django-drf/assets/141402694/bef166ae-2cfc-435e-b74d-b9047b75e379)
 
 ## 게시물 작성
 
